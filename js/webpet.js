@@ -1,4 +1,4 @@
-// --- VARIABLES GLOBALES ---
+
 const seleccionarAtaque = document.getElementById("seleccion-ataque");
 const botonMascota = document.getElementById("boton-mascota");
 const spanVidasJugador = document.getElementById("vidas-jugador");
@@ -15,19 +15,19 @@ const imgMascotaJugador = document.getElementById("img-mascota-jugador");
 const imgMascotaPC = document.getElementById("img-mascota-rival");
 const contenedorMascotas = document.getElementById("contenedor-mascotas");
 
-// Variables de lógica de juego
+
 let jugadorId = null;
 let mascotaJugador;
 let mascotaPC;
 let webPets = [];
 let vidasJugador;
 let vidasEnemigo;
-let modoJuego = ""; // "ONLINE" o "OFFLINE"
+let modoJuego = ""; 
 let intervaloMatchmaking = null;
 let intervaloEsperaAtaque = null;
 let timerAtaque = null;
 
-// Reglas y Clase WebPet (igual que tu código original)
+
 const reglas = {
   Fuego: { gana_a: ["Planta", "Hielo"], pierde_con: ["Agua", "Tierra"] },
   Agua: { gana_a: ["Fuego", "Tierra"], pierde_con: ["Planta", "Hielo"] },
@@ -47,7 +47,7 @@ class WebPet {
   }
 }
 
-// Instancias (Tus mascotas)
+
 let wispy = new WebPet("Wispy", "Img/wispy.png", 200, "Fuego");
 let bubbles = new WebPet("Bubbles", "Img/bubbles.png", 200, "Agua");
 let lizzy = new WebPet("Lizzy", "Img/lizzy.png", 200, "Planta");
@@ -57,7 +57,7 @@ let purrly = new WebPet("Purrly", "Img/purrly.png", 200, "Normal");
 
 webPets.push(wispy, bubbles, lizzy, dusty, frostiling, purrly);
 
-// --- INICIO DEL JUEGO ---
+//INICIO DEL JUEGO
 function cargaDelJuego() {
   seleccionarAtaque.style.display = "none";
 
@@ -87,7 +87,7 @@ function cargaDelJuego() {
 }
 
 function unirseAlJuego() {
-  fetch("http://localhost:8080/unirse").then(function (res) {
+  fetch("https://back-webpet.onrender.com/unirse").then(function (res) {
     if (res.ok) {
       res.text().then(function (respuesta) {
         console.log("ID Jugador:", respuesta);
@@ -105,30 +105,30 @@ function seleccionarMascotaJugador() {
   } else {
     spanMascotaJugador.textContent = mascota.value;
     mascotaJugador = webPets.find((pet) => pet.nombre === mascota.value);
-    imgMascotaJugador.src = mascotaJugador.img; // Setear imagen propia
+    imgMascotaJugador.src = mascotaJugador.img; 
 
     seleccionarWebPet(mascotaJugador);
 
-    // CAMBIO DE PANTALLA
+    
     seleccionMascota.style.display = "none";
-    seleccionarAtaque.style.display = "flex"; // Mostramos la pantalla de batalla
+    seleccionarAtaque.style.display = "flex"; 
 
-    // Ocultar botones de ataque mientras buscamos rival
+    
     document.getElementById("contenedor-ataques").style.display = "none";
 
-    iniciarMatchmaking(); // Empezar búsqueda (Polling 30s)
+    iniciarMatchmaking(); 
   }
 }
 
 function seleccionarWebPet(mascotaJugador) {
-  fetch("http://localhost:8080/webpet/" + jugadorId, {
+  fetch("https://back-webpet.onrender.com/webpet/" + jugadorId, {
     method: "post",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ webPet: mascotaJugador.nombre }), // Enviamos solo nombre para simplificar
+    body: JSON.stringify({ webPet: mascotaJugador.nombre }), 
   });
 }
 
-// --- SISTEMA DE MATCHMAKING (30s) ---
+
 function iniciarMatchmaking() {
   let tiempoBuscando = 0;
   mensajeTurno.innerHTML = "Buscando oponente...";
@@ -137,7 +137,7 @@ function iniciarMatchmaking() {
     tiempoBuscando++;
     mensajeTurno.innerHTML = `Buscando oponente... ${tiempoBuscando}s`;
 
-    fetch(`http://localhost:8080/matchmaking/${jugadorId}`)
+    fetch(`https://back-webpet.onrender.com/matchmaking/${jugadorId}`)
       .then((res) => res.json())
       .then((data) => {
         if (data.hayOponente) {
@@ -151,9 +151,8 @@ function iniciarMatchmaking() {
           clearInterval(intervaloMatchmaking);
           modoJuego = "OFFLINE";
 
-          // --- BLOQUEO PARA IA ---
-          // Avisamos al servidor que ya no estamos disponibles aunque estemos contra la IA
-          fetch(`http://localhost:8080/webpet/${jugadorId}/bloquear`, {
+          
+          fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/bloquear`, {
             method: "post",
           });
 
@@ -165,7 +164,7 @@ function iniciarMatchmaking() {
   }, 1000);
 }
 
-// --- INICIO DE PELEA UI ---
+//INICIO DE PELEA UI
 function iniciarPeleaUI() {
   mascotaRival.textContent = mascotaPC.nombre;
   imgMascotaPC.src = mascotaPC.img;
@@ -178,7 +177,6 @@ function iniciarPeleaUI() {
     document.getElementById("contenedor-ataques").style.display = "flex";
     iniciarTurnoJugador();
   } else {
-    // MODO ONLINE: Sincronizar entrada
     sincronizarComienzo();
   }
 }
@@ -186,14 +184,12 @@ function iniciarPeleaUI() {
 function sincronizarComienzo() {
   mensajeTurno.textContent = "Sincronizando con rival...";
 
-  // 1. Decirle al servidor que yo ya estoy listo
-  fetch(`http://localhost:8080/webpet/${jugadorId}/confirmar-listo`, {
+  fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/confirmar-listo`, {
     method: "post",
   });
 
-  // 2. Esperar a que el oponente también esté listo
   let intervaloSync = setInterval(() => {
-    fetch(`http://localhost:8080/webpet/${jugadorId}/ambos-listos`)
+    fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/ambos-listos`)
       .then((res) => res.json())
       .then((data) => {
         if (data.listos) {
@@ -201,7 +197,6 @@ function sincronizarComienzo() {
           mensajeTurno.textContent = "¡Rival conectado! Empieza la batalla.";
           document.getElementById("contenedor-ataques").style.display = "flex";
 
-          // Solo ahora habilitamos el primer turno
           setTimeout(() => {
             iniciarTurnoJugador();
           }, 1000);
@@ -210,9 +205,8 @@ function sincronizarComienzo() {
   }, 1000);
 }
 
-// --- TIMER DE ATAQUE (15s) ---
+
 function iniciarTurnoJugador() {
-  // Habilitar botones
   const botones = document.querySelectorAll(".btn-atq");
   botones.forEach((btn) => (btn.disabled = false));
 
@@ -227,17 +221,15 @@ function iniciarTurnoJugador() {
 
     if (tiempoRestante <= 0) {
       clearInterval(timerAtaque);
-      // Selección automática
       const randomBtn = botones[aleatorio(0, botones.length - 1)];
       ataqueAutomatico(randomBtn.value);
     }
   }, 1000);
 }
 
-// Listener de ataques (Unificado)
+
 contenedorAtaques.addEventListener("click", (e) => {
   if (e.target.classList.contains("btn-atq")) {
-    // Asegurar que es botón
     clearInterval(timerAtaque);
     resolverAccionJugador(e.target.value);
   }
@@ -251,43 +243,36 @@ function ataqueAutomatico(ataque) {
 function resolverAccionJugador(ataqueSeleccionado) {
   if (modoJuego === "OFFLINE") {
     let ataqueEnemigo = ataquePC();
-    // En OFFLINE el cálculo es instantáneo
     combatir(ataqueSeleccionado, ataqueEnemigo);
   } else {
-    // En ONLINE esperamos la sincronización del servidor
     enviarAtaqueOnline(ataqueSeleccionado);
   }
 }
 
-// --- LÓGICA ONLINE ---
+
 function enviarAtaqueOnline(ataqueSeleccionado) {
     mensajeTurno.textContent = "Esperando al rival...";
     
-    // 1. Enviamos nuestro ataque
-    fetch(`http://localhost:8080/webpet/${jugadorId}/ataque`, {
+    fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/ataque`, {
         method: "post",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ataque: ataqueSeleccionado })
     });
 
-    // 2. POLLING: Esperamos a que el servidor tenga AMBOS ataques
     intervaloEsperaAtaque = setInterval(() => {
-        fetch(`http://localhost:8080/webpet/${jugadorId}/resultado-turno`)
+        fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/resultado-turno`)
             .then(res => res.json())
             .then(data => {
                 if (data.listo) {
                     clearInterval(intervaloEsperaAtaque);
                     
-                    // Ejecutamos el combate con los datos sincronizados del servidor
                     combatir(data.ataqueJugador, data.ataqueRival);
                     
-                    // --- EL NUEVO HANDSHAKE DE LIMPIEZA ---
-                    // Esperamos 2 segundos para que el usuario vea qué pasó
                     setTimeout(() => {
-                        // Limpiamos nuestro ataque en el servidor
-                        fetch(`http://localhost:8080/webpet/${jugadorId}/limpiar`, { method: 'post' })
+                        
+                        fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/limpiar`, { method: 'post' })
                         .then(() => {
-                            // Solo iniciamos el siguiente turno si la pelea NO ha terminado
+                            
                             if (vidasJugador > 0 && vidasEnemigo > 0) {
                                 iniciarTurnoJugador();
                             }
@@ -303,7 +288,7 @@ function enviarAtaqueOnline(ataqueSeleccionado) {
     }, 1000);
 }
 
-// --- COMBATE Y RESULTADOS ---
+//COMBATE Y RESULTADOS
 function combatir(ataqueJugador, ataqueEnemigo) {
   let resultado = determinarGanador(ataqueJugador, ataqueEnemigo);
 
@@ -314,7 +299,6 @@ function combatir(ataqueJugador, ataqueEnemigo) {
 
 function revisarVidas() {
   if (vidasEnemigo <= 0 || vidasJugador <= 0) {
-    // Determinar mensaje final
     if (vidasEnemigo <= 0) {
       mensajeTurno.textContent = "¡GANASTE LA BATALLA!";
     } else {
@@ -323,9 +307,8 @@ function revisarVidas() {
 
     botonReinicio.style.display = "block";
 
-    // --- ELIMINAR JUGADOR DEL SERVIDOR ---
-    // Como el combate terminó, borramos el ID de la lista de online
-    fetch(`http://localhost:8080/jugador/${jugadorId}/eliminar`, {
+    //ELIMINAR JUGADOR DEL SERVIDOR
+    fetch(`https://back-webpet.onrender.com/jugador/${jugadorId}/eliminar`, {
       method: "delete",
     }).then(() =>
       console.log("Sesión de combate terminada y eliminada del servidor.")
@@ -337,14 +320,13 @@ function revisarVidas() {
   }
 }
 
-// --- UTILS ---
+
 function ataquePC() {
-  // Definimos los ataques exactos que existen en nuestras reglas
   const ataquesPosibles = ["Fuego", "Agua", "Planta", "Tierra", "Hielo"];
   const indiceAleatorio = aleatorio(0, ataquesPosibles.length - 1);
   const ataqueElegido = ataquesPosibles[indiceAleatorio];
 
-  console.log("La IA eligió: " + ataqueElegido); // Para que revises en consola
+  console.log("La IA eligió: " + ataqueElegido);
   return ataqueElegido;
 }
 
@@ -353,7 +335,6 @@ function aleatorio(min, max) {
 }
 
 function determinarGanador(ataqueSeleccionado, ataqueAleatorio) {
-  // Si alguno es undefined o no existe en reglas, evitamos el crash
   if (!reglas[ataqueSeleccionado] || !reglas[ataqueAleatorio]) {
     console.error("Error: Ataque no reconocido", {
       ataqueSeleccionado,
@@ -388,7 +369,6 @@ function determinarGanador(ataqueSeleccionado, ataqueAleatorio) {
 }
 
 function resolucionDeTipos(tipoAtacante, ataque, tipoDefensor) {
-  // Verificación de seguridad: si el ataque no está en las reglas, no aplicar multiplicador
   if (!reglas[ataque]) {
     console.warn(`El ataque "${ataque}" no existe en las reglas.`);
     return baseDamage;
