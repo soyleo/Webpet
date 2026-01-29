@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jersey+10&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <title>WebPets</title>
+</head>
+
+<body>
+    <header>
+        <h1 id="titulo"><span id="w">W</span><span id="e1">e</span><span id="b">b</span><span id="p">P</span><span id="e2">e</span><span id="t">t</span><span id="s">s</span><span id="ex">!</span></h1>
+    </header>
+    <main>
+        <section id="seleccion-mascota">
+            <h2 class="section-title">Choose your pet</h2>
+            <div id="contenedor-mascotas">
+                <!-- Here the pets will be displayed -->
+            </div>
+            <button class="btn" id="boton-mascota">Confirm</button>
+            
+        </section>
+        <section id="seleccion-ataque">
+            <h2 class="section-title">Choose your attack</h2>
+            <div id="muestra-mascotas">
+                <div class="muestra">
+                    <img id="img-mascota-jugador" src="" alt="">
+                    <div id="mascota-jugador"></div>
+                    <p class="muestra-vidas">❤ <span id="vidas-jugador"></span></p>
+                </div>
+                <div class="muestra">
+                    <img id="img-mascota-rival" src="" alt="">
+                    <div id="mascota-rival"></div>
+                    <p class="muestra-vidas">❤ <span id="vidas-enemigo"></span></p>
+                </div>
+            </div>
+            <div id="mensajes">
+                <p id="mensaje-turno"><br><br></p>
+            </div>
+            <div id="contenedor-ataques">
+                <button class="btn-atq" id="boton-fuego" value="Fuego">Fire</button>
+                <button class="btn-atq" id="boton-agua" value="Agua">Water</button>
+                <button class="btn-atq" id="boton-planta" value="Planta">Grass</button>
+                <button class="btn-atq" id="boton-tierra" value="Tierra">Earth</button>
+                <button class="btn-atq" id="boton-hielo" value="Hielo">Ice</button>
+            </div>
+            
+            <div id="reiniciar-juego">
+                <button class="btn" id="boton-reiniciar">Refresh</button>
+            </div>
+            
+        </section>
+
+    </main>
+    <footer>
+        <p>Eikonet, all rights reserved.</p>
+    </footer>
+    
+    <script src="webpet.js"></script>
+
+</body>
+
+</html>

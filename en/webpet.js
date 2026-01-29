@@ -39,22 +39,23 @@ const reglas = {
 const baseDamage = 20;
 
 class WebPet {
-  constructor(nombre, img, vida, tipo) {
+  constructor(nombre, img, vida, tipo, tipoValue, tipoShow) {
     this.nombre = nombre;
     this.img = img;
     this.vida = vida;
+    this.tipoValue = tipoValue;
     this.tipo = tipo;
+    this.tipoShow = tipoShow;
   }
 }
 
 
-let wispy = new WebPet("Wispy", "Img/wispy.png", 200, "Fuego");
-let bubbles = new WebPet("Bubbles", "Img/bubbles.png", 200, "Agua");
-let lizzy = new WebPet("Lizzy", "Img/lizzy.png", 200, "Planta");
-let dusty = new WebPet("Dusty", "Img/dusty.png", 200, "Tierra");
-let frostiling = new WebPet("Frostiling", "Img/frostiling.png", 200, "Hielo");
-let purrly = new WebPet("Purrly", "Img/purrly.png", 200, "Normal");
-
+let wispy = new WebPet("Wispy", "../Img/wispy.png", 200, "Fuego", "fuego", "Fire");
+let bubbles = new WebPet("Bubbles", "../Img/bubbles.png", 200, "Agua", "agua", "Water");
+let lizzy = new WebPet("Lizzy", "../Img/lizzy.png", 200, "Planta", "planta", "Grass");
+let dusty = new WebPet("Dusty", "../Img/dusty.png", 200, "Tierra", "tierra", "Earth");
+let frostiling = new WebPet("Frostiling", "../Img/frostiling.png", 200, "Hielo", "hielo", "Ice");
+let purrly = new WebPet("Purrly", "../Img/purrly.png", 200, "Normal", "normal", "Normal");
 webPets.push(wispy, bubbles, lizzy, dusty, frostiling, purrly);
 
 //INICIO DEL JUEGO
@@ -69,8 +70,8 @@ function cargaDelJuego() {
       <label class="nombre-pet tarjeta-de-mokepon" for=${webPet.nombre.toLowerCase()}>
         <img class="img-card" src=${webPet.img} alt=${webPet.nombre}>
         ${webPet.nombre}
-        <p class="btn-atq" id="boton-${webPet.tipo.toLowerCase()}" >${
-      webPet.tipo
+        <p class="btn-atq" id="boton-${webPet.tipoValue}" >${
+      webPet.tipoShow
     }</p>
       </label>
     `;
@@ -90,7 +91,7 @@ function unirseAlJuego() {
   fetch("https://back-webpet.onrender.com/unirse").then(function (res) {
     if (res.ok) {
       res.text().then(function (respuesta) {
-        console.log("ID Jugador:", respuesta);
+        console.log("Player ID:", respuesta);
         jugadorId = respuesta;
       });
     }
@@ -101,7 +102,7 @@ function seleccionarMascotaJugador() {
   let mascota = document.querySelector('input[name="mascota"]:checked');
 
   if (mascota == null) {
-    alert("Selecciona una mascota");
+    alert("Select a pet.");
   } else {
     spanMascotaJugador.textContent = mascota.value;
     mascotaJugador = webPets.find((pet) => pet.nombre === mascota.value);
@@ -131,12 +132,11 @@ function seleccionarWebPet(mascotaJugador) {
 
 function iniciarMatchmaking() {
   let tiempoBuscando = 0;
-  mensajeTurno.innerHTML = "Buscando oponente...";
+  mensajeTurno.innerHTML = "Searching an opponent...";
 
   intervaloMatchmaking = setInterval(() => {
     tiempoBuscando++;
-    mensajeTurno.innerHTML = `Buscando oponente... ${tiempoBuscando}s`;
-
+    mensajeTurno.innerHTML = `Searching an opponent... ${tiempoBuscando}s`;
     fetch(`https://back-webpet.onrender.com/matchmaking/${jugadorId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -182,7 +182,7 @@ function iniciarPeleaUI() {
 }
 
 function sincronizarComienzo() {
-  mensajeTurno.textContent = "Sincronizando con rival...";
+  mensajeTurno.textContent = "Synchronizing with rival...";
 
   fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/confirmar-listo`, {
     method: "post",
@@ -194,7 +194,7 @@ function sincronizarComienzo() {
       .then((data) => {
         if (data.listos) {
           clearInterval(intervaloSync);
-          mensajeTurno.textContent = "¡Rival conectado! Empieza la batalla.";
+          mensajeTurno.textContent = "Rival connected! Start the battle.";
           document.getElementById("contenedor-ataques").style.display = "flex";
 
           setTimeout(() => {
@@ -211,13 +211,13 @@ function iniciarTurnoJugador() {
   botones.forEach((btn) => (btn.disabled = false));
 
   let tiempoRestante = 15;
-  mensajeTurno.textContent = `¡Tu turno! Tiempo: ${tiempoRestante}s`;
+  mensajeTurno.textContent = `Your turn! Time left: ${tiempoRestante}s`;
 
   if (timerAtaque) clearInterval(timerAtaque);
 
   timerAtaque = setInterval(() => {
     tiempoRestante--;
-    mensajeTurno.textContent = `¡Tu turno! Tiempo: ${tiempoRestante}s`;
+    mensajeTurno.textContent = `Your turn! Time left: ${tiempoRestante}s`;
 
     if (tiempoRestante <= 0) {
       clearInterval(timerAtaque);
@@ -236,7 +236,7 @@ contenedorAtaques.addEventListener("click", (e) => {
 });
 
 function ataqueAutomatico(ataque) {
-  console.log("Tiempo agotado. Ataque auto:", ataque);
+  console.log("Time out! Auto attack:", ataque);
   resolverAccionJugador(ataque);
 }
 
@@ -251,7 +251,7 @@ function resolverAccionJugador(ataqueSeleccionado) {
 
 
 function enviarAtaqueOnline(ataqueSeleccionado) {
-    mensajeTurno.textContent = "Esperando al rival...";
+    mensajeTurno.textContent = "Waiting for the rival...";
     
     fetch(`https://back-webpet.onrender.com/webpet/${jugadorId}/ataque`, {
         method: "post",
@@ -281,7 +281,7 @@ function enviarAtaqueOnline(ataqueSeleccionado) {
 
                 } else if (data.oponenteDesconectado) {
                     clearInterval(intervaloEsperaAtaque);
-                    mensajeTurno.textContent = "El oponente se ha ido. Partida finalizada.";
+                    mensajeTurno.textContent = "The rival has disconnected. Game finished.";
                     botonReinicio.style.display = "block";
                 }
             });
@@ -292,17 +292,25 @@ function enviarAtaqueOnline(ataqueSeleccionado) {
 function combatir(ataqueJugador, ataqueEnemigo) {
   let resultado = determinarGanador(ataqueJugador, ataqueEnemigo);
 
-  mensajeTurno.innerHTML = `Tú atacaste con <b>${ataqueJugador}</b>.<br>El rival atacó con <b>${ataqueEnemigo}</b>.<br>${resultado}`;
+  mensajeTurno.innerHTML = `You attacked with <b>${translateAttack(ataqueJugador)}</b>.<br>The rival attacked with <b>${translateAttack(ataqueEnemigo)}</b>.<br>${resultado}`;
 
   revisarVidas();
+}
+function translateAttack(ataqueJugador) {
+  if (ataqueJugador === "Fuego") return "Fire";
+  if (ataqueJugador === "Agua") return "Water";
+  if (ataqueJugador === "Planta") return "Grass";
+  if (ataqueJugador === "Tierra") return "Earth";
+  if (ataqueJugador === "Hielo") return "Ice";
+  return ataqueJugador; 
 }
 
 function revisarVidas() {
   if (vidasEnemigo <= 0 || vidasJugador <= 0) {
     if (vidasEnemigo <= 0) {
-      mensajeTurno.textContent = "¡GANASTE LA BATALLA!";
+      mensajeTurno.textContent = "YOU WIN!";
     } else {
-      mensajeTurno.textContent = "HAS PERDIDO...";
+      mensajeTurno.textContent = "YOU LOSE...";
     }
 
     botonReinicio.style.display = "block";
@@ -326,7 +334,7 @@ function ataquePC() {
   const indiceAleatorio = aleatorio(0, ataquesPosibles.length - 1);
   const ataqueElegido = ataquesPosibles[indiceAleatorio];
 
-  console.log("La IA eligió: " + ataqueElegido);
+  console.log("The IA chose: " + ataqueElegido);
   return ataqueElegido;
 }
 
@@ -336,15 +344,15 @@ function aleatorio(min, max) {
 
 function determinarGanador(ataqueSeleccionado, ataqueAleatorio) {
   if (!reglas[ataqueSeleccionado] || !reglas[ataqueAleatorio]) {
-    console.error("Error: Ataque no reconocido", {
+    console.error("Error: Attack not recognized", {
       ataqueSeleccionado,
       ataqueAleatorio,
     });
-    return "Error en combate";
+    return "Error in combat.";
   }
 
   if (ataqueSeleccionado === ataqueAleatorio) {
-    return "¡Empate!";
+    return "Tie!";
   }
 
   if (reglas[ataqueSeleccionado].gana_a.includes(ataqueAleatorio)) {
@@ -355,7 +363,7 @@ function determinarGanador(ataqueSeleccionado, ataqueAleatorio) {
     );
     vidasEnemigo -= danio;
     spanVidasEnemigo.textContent = Math.max(0, vidasEnemigo);
-    return `¡Ganaste la ronda! El rival recibe ${danio} de daño.`;
+    return `You won the round! The rival receives ${danio} damage.`;
   } else {
     let danio = resolucionDeTipos(
       mascotaPC.tipo,
@@ -364,13 +372,13 @@ function determinarGanador(ataqueSeleccionado, ataqueAleatorio) {
     );
     vidasJugador -= danio;
     spanVidasJugador.textContent = Math.max(0, vidasJugador);
-    return `¡Perdiste la ronda! Recibes ${danio} de daño.`;
+    return `You lost the round! You receive ${danio} damage.`;
   }
 }
 
 function resolucionDeTipos(tipoAtacante, ataque, tipoDefensor) {
   if (!reglas[ataque]) {
-    console.warn(`El ataque "${ataque}" no existe en las reglas.`);
+    console.warn(`The attack "${ataque}" does not exist in the rules.`);
     return baseDamage;
   }
 
